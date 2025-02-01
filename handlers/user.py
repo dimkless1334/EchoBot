@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.reply import info_keyboard
 from keyboards.inline import create_inline_keyboard
-
+from datetime import datetime
 
 # Создаем роутер для обработчиков
 user_router = Router()
@@ -25,14 +25,6 @@ async def cmd_help(message: Message):
         "/help — помощь"
     )
 
-
-# Обработчик текстовых сообщений (эхо)
-@user_router.message(F.text)
-async def echo_message(message: Message):
-    await message.answer(
-        f"Вы написали: {message.text}",
-        reply_markup=create_inline_keyboard()
-    )
 
 
 # Обработчик для фото
@@ -59,4 +51,25 @@ async def echo_document(message: Message):
     await message.answer_document(
         message.document.file_id,
         caption="Вы отправили файл!"
+    )
+
+
+@user_router.message(F.text == "/info")
+async def cmd_info(message: Message):
+    user = message.from_user
+    reg_date = message.date.astimezone().strftime("%d.%m.%Y %H:%M")
+    await message.answer(
+        f"👤 ID: <code>{user.id}</code>\n"
+        f"📛 Имя: {user.full_name}\n"
+        f"🕒 Дата регистрации: {reg_date}",
+        parse_mode="HTML"
+    )
+
+
+# Обработчик текстовых сообщений (эхо)
+@user_router.message(F.text)
+async def echo_message(message: Message):
+    await message.answer(
+        f"Вы написали: {message.text}",
+        reply_markup=create_inline_keyboard()
     )
